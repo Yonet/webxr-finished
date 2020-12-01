@@ -33,8 +33,11 @@ const renderer: WebGLRenderer = new WebGLRenderer({
 const controls = new OrbitControls(camera, renderer.domElement);
 
 const geometry = new SphereBufferGeometry(0.1, 0.1, 0.2, 32).translate(0, 0.1, 0);
-// const material: MeshBasicMaterial = new MeshBasicMaterial({ color: 0x00ff00 });
-// const earth: Mesh = new Mesh(geometry, material);
+const material: MeshBasicMaterial = new MeshBasicMaterial({ color: 0x00ff00 });
+const phongMaterial = new MeshPhongMaterial({
+	color: 0xffffff * Math.random(),
+});
+const earth: Mesh = new Mesh(geometry, material);
 
 init();
 animate();
@@ -51,7 +54,6 @@ function init() {
 	renderer.xr.enabled = true;
 
 	//overlays: button and stats
-	// document.body.appendChild(stats.dom);
 	document.body.appendChild(ARButton.createButton(renderer, { requiredFeatures: ["hit-test"] }));
 
 	controller = renderer.xr.getController(0);
@@ -64,28 +66,25 @@ function init() {
 	reticle.visible = false;
 	scene.add(reticle);
 
+	scene.add(earth);
+	earth.position.z = -2;
+	earth.visible = true;
+	console.log("renderer xr", renderer.xr);
+
 	window.addEventListener("resize", onWindowResize, false);
-	// earth.position.z = -2;
-	// scene.add(earth);
-	addGui();
 }
 
+function onXRSessionStart(e: any) {
+	console.log("onSessionStart ", e);
+	earth.visible = false;
+}
 function onSelect() {
 	if (reticle.visible) {
-		const material = new MeshPhongMaterial({
-			color: 0xffffff * Math.random(),
-		});
-		const mesh = new Mesh(geometry, material);
+		const mesh = new Mesh(geometry, phongMaterial);
 		mesh.position.setFromMatrixPosition(reticle.matrix);
 		mesh.scale.y = Math.random() * 2 + 1;
 		scene.add(mesh);
 	}
-}
-
-function addGui() {
-	const gui = new GUI();
-	// gui.add(earth.rotation, "x", 0, Math.PI * 2, 0.01);
-	// gui.add(earth.position, "z", -100, 0, 1);
 }
 
 function onWindowResize() {
@@ -98,10 +97,12 @@ function animate() {
 	renderer.setAnimationLoop(render);
 }
 
-function render(timestamp: any, frame: any) {
+function render(timestamp: number, frame: any) {
 	if (frame) {
+		earth.visible = false;
 		const referenceSpace = renderer.xr.getReferenceSpace();
 		const session = renderer.xr.getSession();
+		session.addEventListener("onStart", onXRSessionStart);
 		if (hitTestSourceRequested === false) {
 			session.requestReferenceSpace("viewer").then((referenceSpace) => {
 				session.requestHitTestSource({ space: referenceSpace }).then((source) => {
@@ -126,6 +127,7 @@ function render(timestamp: any, frame: any) {
 			}
 		}
 	}
+	// console.log("isPresenting outside of the frame", renderer.xr.isPresenting);
 	controls.update();
 	stats.update();
 	renderer.render(scene, camera);
