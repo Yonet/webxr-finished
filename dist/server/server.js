@@ -16,6 +16,9 @@ class App {
         app.use("/jsm/:folder/:file", (req, res) => {
             res.sendFile(path_1.default.join(__dirname, "../../node_modules/three/examples/jsm/" + req.params.folder + "/" + req.params.file + ".js"));
         });
+        app.use("/assets/:folder/:file", (req, res) => {
+            res.sendFile(path_1.default.join(__dirname, "../../dist/client/assets/" + req.params.folder + "/" + req.params.file));
+        });
         this.server = new http_1.default.Server(app);
     }
     Start() {

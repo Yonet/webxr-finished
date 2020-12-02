@@ -9,6 +9,7 @@
             "/three/src/*": ["../../node_modules/three/src/*"],
             "/jsm/*": ["../../node_modules/three/examples/jsm/*"],
             "/js/*": ["../../node_modules/three/examples/js/*"],
+            "/assets/*":["../../dist/client/assets/*"]
         },
         "moduleResolution": "node",
         "strict": true

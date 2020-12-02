@@ -1,6 +1,6 @@
 import {
-	Clock,
 	HemisphereLight,
+	LoadingManager,
 	Mesh,
 	MeshBasicMaterial,
 	MeshPhongMaterial,
@@ -19,27 +19,36 @@ import { ARButton } from "/jsm/webxr/ARButton";
 import { GLTFLoader } from "/jsm/loaders/GLTFLoader";
 import { RGBELoader } from "/jsm/loaders/RGBELoader";
 
+//Scene
 const canvas = <HTMLCanvasElement>document.getElementById("canvas");
-const clock = new Clock();
 const camera: PerspectiveCamera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
 const scene: Scene = new Scene();
 const stats = Stats();
-let reticle: Object3D, controller;
-let hitTestSource: XRHitTestSource | null = null;
-let hitTestSourceRequested = false;
 
+//renderer
 const renderer: WebGLRenderer = new WebGLRenderer({
 	antialias: true,
 	canvas: canvas,
 });
 const controls = new OrbitControls(camera, renderer.domElement);
 
-const geometry = new SphereBufferGeometry(0.1, 0.1, 0.2, 32).translate(0, 0.1, 0);
+//geometry
+const geometry = new SphereBufferGeometry(0.1, 0.1, 0.1, 32).translate(0, 0.1, 0);
 const material: MeshBasicMaterial = new MeshBasicMaterial({ color: 0x00ff00 });
 const phongMaterial = new MeshPhongMaterial({
-	color: 0xffffff * Math.random(),
+	color: 0x00ffff * Math.random(),
 });
-const earth: Mesh = new Mesh(geometry, material);
+const earth: Mesh = new Mesh(geometry, phongMaterial);
+
+//Model loader
+const manager = new LoadingManager();
+const loader = new GLTFLoader(manager).setPath("/assets/models/AyaSofia/");
+let modelLoaded = false;
+
+//Hit test
+let reticle: Object3D, controller: Object3D;
+let hitTestSource: XRHitTestSource | null = null;
+let hitTestSourceRequested = false;
 
 init();
 animate();
@@ -55,14 +64,14 @@ function init() {
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.xr.enabled = true;
 
-	//overlays: button and stats
+	//overlays:AR button
 	document.body.appendChild(ARButton.createButton(renderer, { requiredFeatures: ["hit-test"] }));
 
 	controller = renderer.xr.getController(0);
 	controller.addEventListener("select", onSelect);
 	scene.add(controller);
 
-	//Hittest indicator
+	//Hit-test indicator
 	reticle = new Mesh(new RingBufferGeometry(0.15, 0.2, 32).rotateX(-Math.PI / 2), new MeshBasicMaterial());
 	reticle.matrixAutoUpdate = false;
 	reticle.visible = false;
@@ -71,21 +80,32 @@ function init() {
 	scene.add(earth);
 	earth.position.z = -2;
 	earth.visible = true;
-	console.log("renderer xr", renderer.xr);
+	console.log("renderer  xr", renderer.xr);
 
 	window.addEventListener("resize", onWindowResize, false);
 }
 
-function onXRSessionStart(e: any) {
-	console.log("onSessionStart ", e);
-	earth.visible = false;
-}
 function onSelect() {
-	if (reticle.visible) {
-		const mesh = new Mesh(geometry, phongMaterial);
-		mesh.position.setFromMatrixPosition(reticle.matrix);
-		mesh.scale.y = Math.random() * 2 + 1;
-		scene.add(mesh);
+	// if (reticle.visible) {
+	// 	const mesh = new Mesh(geometry, phongMaterial);
+	// 	mesh.position.setFromMatrixPosition(reticle.matrix);
+	// 	mesh.scale.y = Math.random() * 2 + 1;
+	// 	scene.add(mesh);
+	// }
+	if (reticle.visible && !modelLoaded) {
+		loader.load(
+			"GM_poly.gltf",
+			function (gltf) {
+				gltf.scene.children[0].position.setFromMatrixPosition(reticle.matrix);
+				console.log("gltf obj ds", gltf);
+				scene.add(gltf.scene);
+				modelLoaded = true;
+			},
+			undefined,
+			function (error) {
+				console.error(error);
+			}
+		);
 	}
 }
 
@@ -94,6 +114,22 @@ function onWindowResize() {
 	camera.updateProjectionMatrix();
 	renderer.setSize(window.innerWidth, window.innerHeight);
 }
+
+manager.onStart = function (url, itemsLoaded, itemsTotal) {
+	console.log("Started loading file: " + url + ".\nLoaded " + itemsLoaded + " of " + itemsTotal + " files.");
+};
+
+manager.onLoad = function () {
+	console.log("Loading complete!");
+};
+
+manager.onProgress = function (url, itemsLoaded, itemsTotal) {
+	console.log("Loading file: " + url + ".\nLoaded " + itemsLoaded + " of " + itemsTotal + " files.");
+};
+
+manager.onError = function (url) {
+	console.log("There was an error loading " + url);
+};
 
 function animate() {
 	renderer.setAnimationLoop(render);
@@ -104,8 +140,6 @@ function render(timestamp: number, frame: any) {
 		earth.visible = false;
 		const referenceSpace = renderer.xr.getReferenceSpace();
 		const session = renderer.xr.getSession();
-		session.addEventListener("onStart", onXRSessionStart);
-		console.log("session ", session);
 		if (hitTestSourceRequested === false) {
 			session.requestReferenceSpace("viewer").then((referenceSpace) => {
 				session.requestHitTestSource({ space: referenceSpace }).then((source) => {
