@@ -1,9 +1,8 @@
-import { Clock, HemisphereLight, Mesh, MeshBasicMaterial, MeshPhongMaterial, PerspectiveCamera, RingBufferGeometry, Scene, SphereBufferGeometry, WebGLRenderer, } from "/build/three.module.js";
+import { HemisphereLight, Mesh, MeshBasicMaterial, MeshPhongMaterial, PerspectiveCamera, RingBufferGeometry, Scene, SphereBufferGeometry, WebGLRenderer, } from "/build/three.module.js";
 import { OrbitControls } from "/jsm/controls/OrbitControls";
 import Stats from "/jsm/libs/stats.module";
 import { ARButton } from "/jsm/webxr/ARButton";
 const canvas = document.getElementById("canvas");
-const clock = new Clock();
 const camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
 const scene = new Scene();
 const stats = Stats();
@@ -45,12 +44,7 @@ function init() {
     scene.add(earth);
     earth.position.z = -2;
     earth.visible = true;
-    console.log("renderer xr", renderer.xr);
     window.addEventListener("resize", onWindowResize, false);
-}
-function onXRSessionStart(e) {
-    console.log("onSessionStart ", e);
-    earth.visible = false;
 }
 function onSelect() {
     if (reticle.visible) {
@@ -68,13 +62,11 @@ function onWindowResize() {
 function animate() {
     renderer.setAnimationLoop(render);
 }
-function render(timestamp, frame) {
-    if (frame) {
+function render(timestamp, xrFrane) {
+    if (xrFrane) {
         earth.visible = false;
         const referenceSpace = renderer.xr.getReferenceSpace();
         const session = renderer.xr.getSession();
-        session.addEventListener("onStart", onXRSessionStart);
-        console.log("session ", session);
         if (hitTestSourceRequested === false) {
             session.requestReferenceSpace("viewer").then((referenceSpace) => {
                 session.requestHitTestSource({ space: referenceSpace }).then((source) => {
@@ -88,7 +80,7 @@ function render(timestamp, frame) {
             hitTestSourceRequested = true;
         }
         if (hitTestSource) {
-            const hitTestResults = frame.getHitTestResults(hitTestSource);
+            const hitTestResults = xrFrane.getHitTestResults(hitTestSource);
             if (hitTestResults.length) {
                 const hit = hitTestResults[0];
                 reticle.visible = true;
@@ -99,7 +91,6 @@ function render(timestamp, frame) {
             }
         }
     }
-    // console.log("isPresenting outside of the frame", renderer.xr.isPresenting);
     controls.update();
     stats.update();
     renderer.render(scene, camera);

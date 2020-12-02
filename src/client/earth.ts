@@ -1,6 +1,5 @@
 import {
 	BoxGeometry,
-	Clock,
 	Mesh,
 	MeshBasicMaterial,
 	PerspectiveCamera,
@@ -13,7 +12,6 @@ import Stats from "/jsm/libs/stats.module";
 import { GUI } from "/jsm/libs/dat.gui.module";
 
 const canvas = <HTMLCanvasElement>document.getElementById("canvas");
-const clock = new Clock();
 const camera: PerspectiveCamera = new PerspectiveCamera(
 	75,
 	window.innerWidth / window.innerHeight,
