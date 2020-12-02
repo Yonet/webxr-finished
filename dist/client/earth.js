@@ -1,8 +1,7 @@
-import { BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer, } from "/build/three.module.js";
+import { BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer } from "/build/three.module.js";
 import { OrbitControls } from "/jsm/controls/OrbitControls";
 import { VRButton } from "/jsm/webxr/VRButton";
 import Stats from "/jsm/libs/stats.module";
-import { GUI } from "/jsm/libs/dat.gui.module";
 const canvas = document.getElementById("canvas");
 const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const scene = new Scene();

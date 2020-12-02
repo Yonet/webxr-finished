@@ -12,7 +12,6 @@ import {
 	XRHitTestSource,
 } from "/build/three.module.js";
 import { OrbitControls } from "/jsm/controls/OrbitControls";
-import { GUI } from "/jsm/libs/dat.gui.module";
 import Stats from "/jsm/libs/stats.module";
 import { ARButton } from "/jsm/webxr/ARButton";
 
@@ -119,7 +118,7 @@ function render(timestamp: number, xrFrane: any) {
 			}
 		}
 	}
-    
+
 	controls.update();
 	stats.update();
 	renderer.render(scene, camera);

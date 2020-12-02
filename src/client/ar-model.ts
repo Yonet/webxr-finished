@@ -33,7 +33,7 @@ const renderer: WebGLRenderer = new WebGLRenderer({
 
 //geometry
 const geometry = new SphereBufferGeometry(0.1, 0.1, 0.1, 32).translate(0, 0.1, 0);
-const material: MeshBasicMaterial = new MeshBasicMaterial({ color: 0x00ff00, wireframe:true });
+const material: MeshBasicMaterial = new MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
 const phongMaterial = new MeshPhongMaterial({
 	color: 0x00ffff * Math.random(),
 });
@@ -48,7 +48,7 @@ let modelLoaded = false;
 let reticle: Object3D, controller: Object3D;
 let hitTestSource: XRHitTestSource | null = null;
 let hitTestSourceRequested = false;
-let controls;
+let controls: OrbitControls;
 
 init();
 animate();
@@ -63,8 +63,8 @@ function init() {
 	renderer.setPixelRatio(window.devicePixelRatio);
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.xr.enabled = true;
-    controls = new OrbitControls(camera, renderer.domElement);
-    controls.target.set( 0, 1.6, 0 );
+	controls = new OrbitControls(camera, renderer.domElement);
+	controls.target.set(0, 1.6, 0);
 	controls.update();
 
 	//overlays:AR button
@@ -129,7 +129,6 @@ manager.onError = function (url) {
 
 function animate() {
 	renderer.setAnimationLoop(render);
-    	
 }
 
 function render(timestamp: number, frame: any) {
@@ -162,7 +161,7 @@ function render(timestamp: number, frame: any) {
 		}
 	}
 	// console.log("isPresenting outside of the frame", renderer.xr.isPresenting);
-    controls.update();
+	controls.update();
 	stats.update();
 	renderer.render(scene, camera);
 }
