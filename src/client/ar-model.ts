@@ -16,7 +16,6 @@ import { OrbitControls } from "/jsm/controls/OrbitControls";
 import Stats from "/jsm/libs/stats.module";
 import { ARButton } from "/jsm/webxr/ARButton";
 import { GLTFLoader } from "/jsm/loaders/GLTFLoader";
-import { RGBELoader } from "/jsm/loaders/RGBELoader";
 
 //Scene
 const canvas = <HTMLCanvasElement>document.getElementById("canvas");
