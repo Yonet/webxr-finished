@@ -28,12 +28,6 @@ function init() {
     window.addEventListener("resize", onWindowResize, false);
     cube.position.z = -2;
     scene.add(cube);
-    addGui();
-}
-function addGui() {
-    const gui = new GUI();
-    gui.add(cube.rotation, "x", 0, Math.PI * 2, 0.01);
-    gui.add(cube.position, "z", -100, 0, 1);
 }
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;

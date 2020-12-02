@@ -13,7 +13,6 @@ import {
 	XRHitTestSource,
 } from "/build/three.module.js";
 import { OrbitControls } from "/jsm/controls/OrbitControls";
-import { GUI } from "/jsm/libs/dat.gui.module";
 import Stats from "/jsm/libs/stats.module";
 import { ARButton } from "/jsm/webxr/ARButton";
 import { GLTFLoader } from "/jsm/loaders/GLTFLoader";
